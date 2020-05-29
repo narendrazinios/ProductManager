@@ -21,16 +21,24 @@ namespace ProductManager.Controllers
         [HttpPost]
         public async void Add([FromBody] ProductMaster product)
         {
-            product.Id =  Guid.NewGuid();
+            product.Id = Guid.NewGuid();
             await _dataBaseHandler.AddAsync(product);
         }
 
-        // Update Product
+        // Update Product from web
+        [HttpPut]
+        public async void UpdateProduct([FromBody] ProductMaster product)
+        {
+            await _dataBaseHandler.UpdateAsync(product);
+        }
+
+        // Update only PID, Count of Product for mobile
         [HttpPut("{id}")]
         public async void UpdateProduct(Guid id, [FromBody] ProductMaster product)
         {
-            //var id = (await _dataBaseHandler.FirstOrDefaultAsync<ProductMaster>(p => p.PID == pId)).Id;
-            //product.Id = id;
+            var dbProduct = await _dataBaseHandler.FirstOrDefaultAsync<ProductMaster>(p => p.Id == id);
+            if (dbProduct.Name != product.Name || dbProduct.Images != product.Images || product.Description != dbProduct.Description)
+                throw new UnauthorizedAccessException(message: "you can only update the 'Count' and 'Product Id'");
             await _dataBaseHandler.UpdateAsync(product);
         }
 
@@ -49,9 +57,10 @@ namespace ProductManager.Controllers
             return await _dataBaseHandler.FirstOrDefaultAsync<ProductMaster>(x => x.PID == pId);
         }
 
+#nullable enable
         // Product List by Name
-        [HttpGet("[action]/{name}")]
-        public async Task<IEnumerable<ProductMaster>> GetByName(string name)
+        [HttpGet("[action]/{name?}")]
+        public async Task<IEnumerable<ProductMaster>> Search(string? name)
         {
             if (string.IsNullOrEmpty(name))
                 return await _dataBaseHandler.GetAllAsync<ProductMaster>();
