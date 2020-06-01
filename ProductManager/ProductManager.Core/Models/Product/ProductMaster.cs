@@ -1,12 +1,18 @@
-﻿namespace ProductManager.Core.Models.Product
+﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ProductManager.Core.Models.Product
 {
-    public  class ProductMaster : GuidObject
+    public class ProductMaster : ProductModel
     {
-        public string Name { get; set; }
-        public string PID { get; set; }
-        public string Description { get; set; }
-        public long Count { get; set; }
-        public string DetailsJson { get; set; }
-        public string[] Images { get; set; }
+        public IList<string> Images { get; set; }
+
+        public Guid TenantId { get; set; }
+        [ForeignKey("TenantId")]
+        public Tenant Tenant { get; set; }
     }
 }

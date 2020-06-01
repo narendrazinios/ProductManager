@@ -4,26 +4,56 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ProductManager.Core.DAL;
 using ProductManager.Core.Models.Product;
+using ProductManager.VMs;
+using Microsoft.AspNetCore.Hosting;
 
 namespace ProductManager.Controllers
 {
     [Route("api/[controller]")]
-    [ApiController]
+    //[ApiController]
     public class ProductController : ControllerBase
     {
         private readonly IDataBaseHandler _dataBaseHandler;
-        public ProductController(IDataBaseHandler dataBaseHandler)
+        private readonly IWebHostEnvironment _env;
+        public ProductController(IDataBaseHandler dataBaseHandler, IWebHostEnvironment env)
         {
             _dataBaseHandler = dataBaseHandler;
+            _env = env;
         }
 
         // Add product
         [HttpPost]
-        public async void Add([FromBody] ProductMaster product)
+        public async Task<ActionResult> Add([FromForm] ProductVM product)
         {
             product.Id = Guid.NewGuid();
-            await _dataBaseHandler.AddAsync(product);
+            var productMaster = new ProductMaster()
+            {
+                Id = product.Id,
+                Count = product.Count,
+                Description = product.Description,
+                DetailsJson = product.DetailsJson,
+                Name = product.Name,
+                PID = product.PID
+            };
+
+            //if (product.Images.Count > 4)
+            //    throw new Exception("Upload 4 images");
+            //var fullPath = Path.Combine(_env.WebRootPath,"Images",product.Id.ToString());
+            //productMaster.Images = new List<string>();
+
+            //foreach (var image in product.Images)
+            //{
+            //    using (var stream = new FileStream(fullPath, FileMode.Create))
+            //        image.CopyTo(stream);
+            //    productMaster.Images.Add($"{fullPath}//{image.FileName}");
+            //}
+
+
+            await _dataBaseHandler.AddAsync(productMaster);
+
+            return Ok(productMaster);
         }
+
 
         // Update Product from web
         [HttpPut]

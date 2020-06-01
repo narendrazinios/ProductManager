@@ -14,6 +14,7 @@ namespace ProductManager.Core
         }
         
         public DbSet<ProductMaster> ProductMasters { get; set; }
+        public DbSet<Tenant> Tenants { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -27,7 +28,11 @@ namespace ProductManager.Core
               .Property(e => e.Images)
               .HasConversion(
                   v => string.Join(',', v),
-                  v => v.Split(',', StringSplitOptions.RemoveEmptyEntries));
+                  v => v.Split(',', StringSplitOptions.RemoveEmptyEntries))
+              
+              ;
+
+
         }
     }
 }
