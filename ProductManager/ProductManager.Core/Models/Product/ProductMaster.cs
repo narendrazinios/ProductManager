@@ -10,9 +10,8 @@ namespace ProductManager.Core.Models.Product
     public class ProductMaster : ProductModel
     {
         public IList<string> Images { get; set; }
-
-        public Guid TenantId { get; set; }
         [ForeignKey("TenantId")]
         public Tenant Tenant { get; set; }
+
     }
 }

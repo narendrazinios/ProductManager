@@ -6,6 +6,7 @@ using ProductManager.Core.DAL;
 using ProductManager.Core.Models.Product;
 using ProductManager.VMs;
 using Microsoft.AspNetCore.Hosting;
+using System.Linq;
 
 namespace ProductManager.Controllers
 {
@@ -26,6 +27,8 @@ namespace ProductManager.Controllers
         public async Task<ActionResult> Add([FromForm] ProductVM product)
         {
             product.Id = Guid.NewGuid();
+            if (!(await _dataBaseHandler.GetAllAsync<Tenant>()).Any(x => x.Id == product.TenantId))
+                throw new Exception("No Tenant Exists with this GUID.");
             var productMaster = new ProductMaster()
             {
                 Id = product.Id,
@@ -33,7 +36,8 @@ namespace ProductManager.Controllers
                 Description = product.Description,
                 DetailsJson = product.DetailsJson,
                 Name = product.Name,
-                PID = product.PID
+                PID = product.PID,
+                TenantId = product.TenantId
             };
 
             //if (product.Images.Count > 4)
@@ -48,9 +52,7 @@ namespace ProductManager.Controllers
             //    productMaster.Images.Add($"{fullPath}//{image.FileName}");
             //}
 
-
             await _dataBaseHandler.AddAsync(productMaster);
-
             return Ok(productMaster);
         }
 
@@ -87,10 +89,9 @@ namespace ProductManager.Controllers
             return await _dataBaseHandler.FirstOrDefaultAsync<ProductMaster>(x => x.PID == pId);
         }
 
-#nullable enable
         // Product List by Name
-        [HttpGet("[action]/{name?}")]
-        public async Task<IEnumerable<ProductMaster>> Search(string? name)
+        [HttpGet("[action]/{name}")]
+        public async Task<IEnumerable<ProductMaster>> Search(string name)
         {
             if (string.IsNullOrEmpty(name))
                 return await _dataBaseHandler.GetAllAsync<ProductMaster>();

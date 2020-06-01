@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Runtime.InteropServices;
 using System.Runtime.Serialization;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace ProductManager.Core.Models.Product
 {
@@ -17,5 +19,8 @@ namespace ProductManager.Core.Models.Product
 
         public long Count { get; set; } = 1;
         public string DetailsJson { get; set; }
+
+        public Guid TenantId { get; set; }
+     
     }
 }
